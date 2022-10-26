@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <div class="progress-box">
+    <h3 style="color:grey">Please wait...</h3><p>Updating new contracts.</p>
+    <div id="myProgress">
+        <div id="myBar"></div>
+    </div>
+    <p id = "percetages"></p>
+  </div>
+  <script src="{% static 'celery_progress/celery_progress.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+        console.log(progressUrl);
+        var elem = document.getElementById("myBar");
+        var width = 0;
+        var interval = setInterval(() => {   
+            $.ajax({  
+                url: progressUrl,
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data['state'] == "SUCCESS"){
+                        window.clearInterval(interval);
+                        window.location.replace("http://127.0.0.1:8000");
+                    }
+                    else if (data['state'] == "FAILURE"){
+                        window.clearInterval(interval);
+                        window.location.replace("http://127.0.0.1:8000");
+                    }
+                    else{
+                        var progress = data['progress']
+                        var percent = parseInt(progress['percent'])
+                        elem.style.width =  String(percent) + "%";
+                        document.getElementById("percetages").innerHTML = "Processed: ( "+progress['current']+" / "+progress['total']+" )   Percent: "+progress['percent']+"%";
+                    }
+                },
+                error: function(data) {
+                    console.log(data);
+                }
+            });
+        }, 1000);
+    });
+  </script>
+{% endblock %}

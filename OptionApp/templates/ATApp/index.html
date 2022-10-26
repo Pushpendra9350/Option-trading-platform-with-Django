@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark-theme">
+    <div class="collapse navbar-collapse d-flex justify-content-center p-2" id="navbarNavDropdown">
+        <div class='nifty'>
+          <span class='nifty-name'>NIFTY 
+            <span id='nifty-price'>16400.67</span>
+              <span id='nifty-percentage-change'>
+                -1.25% 
+              </span>
+            
+          </span>
+          <span class='nifty-buttons'>
+            <button onclick='niftyBuy()' id='nifty-buy' class="btn btn-success btn-sm">BUY</button>
+            <button onclick='niftySell()' type="button" class="nifty-btn btn btn-danger btn-sm">SELL</button>
+          </span>
+        </div>
+        <div class='banknifty'>
+          <span class='banknifty-name'>BANKNIFTY 
+            <span id='banknifty-price'>34400.67</span>
+              <span id='banknifty-percentage-change'>
+                +1.25% 
+              </span>
+            
+          </span>
+          <span class='banknifty-buttons'>
+            <button onclick='bankniftyBuy()' id='banknifty-buy' class="btn btn-success btn-sm">BUY</button>
+            <button onclick='bankniftySell()' type="button" class="banknifty-btn btn btn-danger btn-sm">SELL</button>
+          </span>
+        </div>
+    </div>
+  </nav> 
+  
+
+  <div class='trade-list'>
+        <table id='trades-table' class='table'>
+          <thead>
+            <tr>
+              <th style='border-radius: 5px 0px 0px 0px;'>Time</th>
+              <th>Type</th>
+              <th>Symbol</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Stoploss</th>
+              <th>Avg. Buy</th>
+              <th>Avg. Sell</th>
+              <th>Traget</th>
+              <th>LTP</th>
+              <th>Day P&L</th>
+              <th>%chg</th>
+              <th>Add</th>
+              <th style='border-radius: 0px 5px 0px 0px;'>Exit</th>
+            </tr>
+          </thead>  
+          <tbody id='trdes-tbody'>
+          </tbody>
+        </table>
+  </div> 
+
+
+
+
+  <div class='container' id='order-model'>
+    <form id='order-form'>
+      <div class='d-flex justify-content-center'>
+        <b>Expiry Date:</b> &#128073; 
+        <div class='expiry-selector ml-2'>
+          <input class='radio__input' value={{first_expiry.input_value}} type='radio' name = 'expiry' checked='checked'>
+          <label class='radio__label' for='four'>{{first_expiry.front_value}}</label>
+          {% for expiry in expiry_date %}
+            <input class='radio__input' value={{expiry.input_value}} type='radio' name = 'expiry'>
+            <label class='radio__label' for='five'>{{expiry.front_value}}</label>
+          {% endfor %}
+        </div>
+      </div>
+      <div class='mt-10'>
+        <b>Stoploss:</b> &#128073; 
+        <div class='sl-selector mr-2 form-check-inline'>
+          <input class='radio__input' value='0' type='radio' name = 'stoploss' id = 'zero'>
+          <label class='radio__label' for='zero'>0%</label>
+          <input class='radio__input' value='10' type='radio' name = 'stoploss' id = 'ten-sl'>
+          <label class='radio__label' for='ten-sl'>10%</label>
+          <input class='radio__input' value='15' type='radio' name = 'stoploss' id = 'fifteen-sl' checked='checked'>
+          <label class='radio__label' for='fifteen-sl'>15%</label>
+          <input class='radio__input' value='20' type='radio' name = 'stoploss' id = 'twenty-sl'>
+          <label class='radio__label' for='twenty-sl'>20%</label>
+        </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Target:</b> &#128073; 
+        <div class='target-selector'>
+          <input class='radio__input' value='15' type='radio' name = 'target' id = 'fifteen-t'>
+          <label class='radio__label' for='fifteen-t'>15%</label>
+          <input class='radio__input' value='20' type='radio' name = 'target' id = 'twenty-t'>
+          <label class='radio__label' for='twenty-t'>20%</label>
+          <input class='radio__input' value='30' type='radio' name = 'target' id = 'thirty-t' checked='checked'>
+          <label class='radio__label' for='thirty-t'>30%</label>
+        </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Side:</b> &#128073; 
+        <div class='side-selector'>
+          <input class='radio__input' value='CE' type='radio' name = 'side' id = 'call' checked='checked'>
+          <label class='radio__label' for='call'>CALL</label>
+          <input class='radio__input' value='PE' type='radio' name = 'side' id = 'put'>
+          <label class='radio__label' for='put'>PUT</label>
+        </div>
+      </div>
+      <div class='d-flex justify-content-around'>
+      <div class='mt-10'>
+        <b>Strike:</b> &#128073; 
+        <select id='strike-options' class="form-select form-select-sm" aria-label=".form-select-sm example">
+        </select>
+      </div>
+        <div class='mt-10'>
+        <b>Quantity:</b> &#128073;
+          <input id='quantity' type="number" step='25' name="quantity" class="quantity-field" required>
+      </div>
+    </div>
+      <div class='mt-5 order-buttons float-right'>
+        <button onclick='cancelOrder()' style='color:white' type="button" class="btn btn-outline-secondary btn-sm">Cancel</button>
+        <button id='place-order' type="submit" class="banknifty-btn btn btn-sm">Place Order</button>
+      </div>
+    </form>
+  </div>
+
+
+  <span id='green-toast' role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <img src="{% static 'OptionApp/media/green.png' %}" class="rounded mr-2" height=20>
+      <b style='color:rgb(200, 200, 200);' id='greenToast'>Order Placed Successfully</b>
+    </div>  
+  </span>
+
+  <span id='green-toast-day' role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <img src="{% static 'OptionApp/media/green.png' %}" class="rounded mr-2" height=20>
+      <b style='color:rgb(200, 200, 200);' id='greenToast'>Successfully! Done for the day</b>
+    </div>  
+  </span>
+
+  <span id='red-toast'>
+    <div class="toast-header">
+      <img src="{% static 'OptionApp/media/red.png' %}" class="rounded mr-2" height=20>
+      <b style='color:rgb(200, 200, 200);' id='redToast'>Something Going Wrong</b>
+    </div>  
+  </span>
+
+  <span id='blue-toast' role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <img src="{% static 'OptionApp/media/blue.png' %}" class="rounded mr-2" height=20>
+      <b style='color:rgb(200, 200, 200);'>More Quantity Added</b>
+    </div>  
+  </span>
+
+  <span id='blue-toast-exit' role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <img src="{% static 'OptionApp/media/blue.png' %}" class="rounded mr-2" height=20>
+      <b style='color:rgb(200, 200, 200);'>Quantity exited successfully</b>
+    </div>  
+  </span>
+
+  <div id="addModel" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <div class="model-heading">Add More Quantity</div>
+      <div>
+        <hr>
+        <b>Quantity: </b> &#128073;
+          <input id='addquantity' type="number" step='25' name="addquantity" class="quantity-field" required>
+          <div class='mt-5 order-buttons float-right'>
+            <button onclick='add_model_close()' style='color:white' type="button" class="btn btn-outline-secondary btn-sm">Cancel</button>
+            <button id='place-order' onclick='addQuantity()' type="submit" class="banknifty-btn btn btn-success btn-sm">Add Quantity</button>
+          </div>
+      </div>
+    </div>
+  </div>  
+  <div id="exitModel" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <div class="model-heading">Exit Quantity</div>
+      <div>
+        <hr>
+        <b>Quantity: </b> &#128073;
+          <input id='exitquantity' type="number" step='25' name="exitquantity" class="quantity-field" required>
+          <div class='mt-5 order-buttons float-right'>
+            <button onclick='exit_model_close()' style='color:white' type="button" class="btn btn-outline-secondary btn-sm">Cancel</button>
+            <button id='place-order' onclick='exitQuantity()' type="submit" class="banknifty-btn btn btn-danger btn-sm">Exit Quantity</button>
+          </div>
+      </div>
+    </div>
+  </div>  
+
+  <div id='endday' style = "margin-left:20px">
+    <button class='btn btn-primary btn-sm' onclick='endTheDay()'>End Of The Day</button>
+  </div>
+
+
+{% endblock %}
