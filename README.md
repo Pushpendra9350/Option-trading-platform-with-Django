@@ -6,6 +6,9 @@ Option trading application to place realtime order with stock price simulation
 #### Screenshot
 <img width="1435" alt="Screenshot 2022-10-26 at 10 36 17 PM" src="https://user-images.githubusercontent.com/43174363/198102165-36078d1e-69d6-4e31-89a2-dc06a485f4ea.png">
 
+#### Simple Architecture
+![Group 130](https://user-images.githubusercontent.com/43174363/198601499-b072db4d-383d-4f14-9db8-d25128de7570.png)
+
 ##### To run the project server
 ```git
 python manage.py runserver
